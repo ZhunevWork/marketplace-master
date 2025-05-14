@@ -1,0 +1,100 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Product {
+  account          Account?          @relation(fields: [accountId], references: [id])
+  accountId        String?
+  createdAt        DateTime          @default(now())
+  description      String?
+  id               String            @id @default(cuid())
+  imageUrl         String?
+  marketplaceSyncs MarketplaceSync[]
+  name             String?
+  offerCards       OfferCard[]
+  price            Float?
+  updatedAt        DateTime          @updatedAt
+}
+
+model Account {
+  createdAt DateTime  @default(now())
+  id        String    @id @default(cuid())
+  name      String?
+  products  Product[]
+  updatedAt DateTime  @updatedAt
+  users     User[]
+}
+
+model MarketplaceSync {
+  createdAt     DateTime     @default(now())
+  externalId    String?
+  id            String       @id @default(cuid())
+  marketplace   Marketplace? @relation(fields: [marketplaceId], references: [id])
+  marketplaceId String?
+  product       Product?     @relation(fields: [productId], references: [id])
+  productId     String?
+  status        String?
+  updatedAt     DateTime     @updatedAt
+}
+
+model Role {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  name      String?
+  updatedAt DateTime @updatedAt
+}
+
+model SubscriptionPlan {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  isActive    Boolean?
+  name        String?
+  price       Float?
+  updatedAt   DateTime @updatedAt
+  users       User[]
+}
+
+model Marketplace {
+  apiKey           String?
+  createdAt        DateTime          @default(now())
+  description      String?
+  id               String            @id @default(cuid())
+  isActive         Boolean?
+  marketplaceSyncs MarketplaceSync[]
+  name             String?
+  updatedAt        DateTime          @updatedAt
+}
+
+model OfferCard {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  imageUrl    String?
+  name        String?
+  price       Float?
+  product     Product? @relation(fields: [productId], references: [id])
+  productId   String?
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  account            Account?          @relation(fields: [accountId], references: [id])
+  accountId          String?
+  createdAt          DateTime          @default(now())
+  email              String?           @unique
+  firstName          String?
+  id                 String            @id @default(cuid())
+  lastName           String?
+  password           String
+  roles              Json
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId String?
+  updatedAt          DateTime          @updatedAt
+  username           String            @unique
+}
